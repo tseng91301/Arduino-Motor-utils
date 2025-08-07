@@ -63,3 +63,69 @@ class Motor {
         void service();
 
 };
+
+class DualMotor {
+    private:
+        Motor *motorL;
+        Motor *motorR;
+
+        double L_calibration = 1.0; // |Max| 1
+        double R_calibration = 1.0; // |Max| 1
+
+        void set_speed(int spdL, int spdR) {
+            motorL->set_speed(spdL);
+            motorR->set_speed(spdR);
+        }
+    public:
+        
+        // Settings params
+        double speed = 0.0; // |Max| 1
+        double L_weight = 0.0; // |Max| 1
+        double R_weight = 0.0; // |Max| 1
+
+        DualMotor(Motor *motorL, Motor *motorR): motorL(motorL), motorR(motorR) {}
+
+        void set_calibration(double L_calibration, double R_calibration) {
+            // Calibrate Left and Right speed.
+            // input any floating number bigger than 0.0
+            // To ensure the speed is the max output, we will set the big one to 1.0, and the other will be divided, respectively.
+            if (L_calibration <= 0.0 || R_calibration <= 0.0) {
+                return;
+            }
+
+            if (L_calibration > R_calibration) {
+                R_calibration = R_calibration / L_calibration;
+                L_calibration = 1.0;
+            } else {
+                L_calibration = L_calibration / R_calibration;
+                R_calibration = 1.0;
+            }
+        }
+
+        void set_direction(int direction) {
+            // Input a direction angle between [-180, 180]
+            // -180: L_weight = 1.0, R_weight = -1.0
+            // 0: L_weight = 0.0, R_weight = 0.0
+            // 180: L_weight = -1.0, R_weight = 1.0
+            if (direction < -180 || direction > 180) {
+                return;
+            }
+
+            if (direction <= 0 && direction >= -180) {
+                L_weight = 1.0;
+                R_weight = cos(direction * PI / 180.0);
+            } else if (direction > 0 && direction <= 180) {
+                L_weight = cos(direction * PI / 180.0);
+                R_weight = 1.0;
+            }
+
+            set_speed(255 * speed * L_weight * L_calibration, 255 * speed * R_weight * R_calibration);
+            return;
+        }
+        
+        void service() {
+            motorL->service();
+            motorR->service();
+        }
+
+};
