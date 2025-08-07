@@ -50,7 +50,7 @@ class Motor {
 
         // Public Function Call
         void attach_interrupt_isr(void (*isr)());
-        void set_callback_byte(uint8_t callback_byte) { this->callback_byte = callback_byte; }
+        void set_callback_byte(uint8_t callback_byte) { this->callback_byte = callback_byte; } // 
 
         void set_speed(int inp);
         double get_current_speed();
