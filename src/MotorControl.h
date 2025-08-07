@@ -39,6 +39,7 @@ class Motor {
         void init();
 
         // Serial command callback
+        bool have_serial_callback = false;
         uint8_t callback_byte;
 
     public:
@@ -50,9 +51,9 @@ class Motor {
 
         // Public Function Call
         void attach_interrupt_isr(void (*isr)());
-        void set_callback_byte(uint8_t callback_byte) { this->callback_byte = callback_byte; } // 
+        void set_callback_byte(uint8_t callback_byte) { this->callback_byte = callback_byte; this->have_serial_callback = true; }
 
-        void set_speed(int inp);
+        void set_speed(int inp, bool callback=true);
         double get_current_speed();
 
         // encoder function

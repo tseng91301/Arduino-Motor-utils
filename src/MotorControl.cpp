@@ -61,10 +61,12 @@ void Motor::update_speed() {
     return;
 }
 
-void Motor::set_speed(int spd) {
+void Motor::set_speed(int spd, bool callback=true) {
     target_speed = spd;
-    uint8_t response[] = {0xFF, callback_byte, 0x00, 0x0A};
-    send_bytes(response, 4);
+    if(callback) {
+        uint8_t response[] = {0xFF, callback_byte, 0x00, 0x0A};
+        send_bytes(response, 4);
+    }
     return;
 }
 
