@@ -55,6 +55,7 @@ void Motor::attach_interrupt_isr(void (*isr)()) {
 void Motor::update_speed() {
     static int last_encoderPos = 0;
     motor_speed = (encoderPos - last_encoderPos) / (double)(read_speed_interval * 0.001) * 60.0 / 7.0 / 27.0;
+    if (reversed) motor_speed = -motor_speed;
     Serial.print("Speed: ");
     Serial.println(motor_speed);
     last_encoderPos = encoderPos = 0;
@@ -65,7 +66,7 @@ void Motor::set_speed(int spd, bool callback=true) {
     target_speed = spd;
     if(callback) {
         uint8_t response[] = {0xFF, callback_byte, 0x00, 0x0A};
-        send_bytes(response, 4);
+        // send_bytes(response, 4);
     }
     return;
 }

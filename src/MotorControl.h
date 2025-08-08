@@ -43,6 +43,8 @@ class Motor {
         uint8_t callback_byte;
 
     public:
+        bool reversed = false;
+
         volatile long encoderPos = 0;
         // Construction
         Motor(int in1, int in2); // Without encoder
