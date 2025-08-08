@@ -30,7 +30,7 @@ class Motor {
         double e_integral = 0;
 
         // Speed Control
-        int target_speed;
+        int target_speed = 0;
         void _turn(int spd);
         void update_speed();
         double motor_speed = 0;
@@ -75,6 +75,8 @@ class DualMotor {
         double R_calibration = 1.0; // |Max| 1
 
         void set_speed(int spdL, int spdR) {
+            // Serial.println(spdL);
+            // Serial.println(spdR);
             motorL->set_speed(spdL);
             motorR->set_speed(spdR);
         }
