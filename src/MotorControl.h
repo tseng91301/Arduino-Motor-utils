@@ -2,6 +2,7 @@
 
 #include<Arduino.h>
 
+#define DOUBLE_ABS_MAX 3.4e10
 
 class Motor {
     private:
@@ -43,6 +44,7 @@ class Motor {
         uint8_t callback_byte;
 
     public:
+        bool usePid = true;
         volatile long encoderPos = 0;
         // Construction
         Motor(int in1, int in2); // Without encoder
@@ -53,7 +55,7 @@ class Motor {
         void attach_interrupt_isr(void (*isr)());
         void set_callback_byte(uint8_t callback_byte) { this->callback_byte = callback_byte; this->have_serial_callback = true; }
 
-        void set_speed(int inp, bool callback=true);
+        uint8_t set_speed(int inp);
         double get_current_speed();
 
         // encoder function

@@ -1,6 +1,5 @@
 #include "MotorControl.h"
 #include <Arduino.h>
-#include<SerialTools.h>
 #include <TimerOne.h>
 
 Motor::Motor(int in1, int in2): in1(in1), in2(in2) {
@@ -61,13 +60,11 @@ void Motor::update_speed() {
     return;
 }
 
-void Motor::set_speed(int spd, bool callback=true) {
+uint8_t Motor::set_speed(int spd) {
+    if (target_speed > 255) target_speed = 255;
+    if (target_speed < -255) target_speed = -255;
     target_speed = spd;
-    if(callback) {
-        uint8_t response[] = {0xFF, callback_byte, 0x00, 0x0A};
-        send_bytes(response, 4);
-    }
-    return;
+    return 0;
 }
 
 void Motor::_turn(int spd) {
@@ -93,23 +90,30 @@ void Motor::service() {
     }
     int output;
     if(motor_enabled) {
-        e = motor_speed - target_speed;
-        e_integral += e;
-        double derivative = e - e_prev;
-        e_prev = e;
-        output = kP * e + kI * e_integral + kD * derivative;
-        // Serial.print("P: ");
-        // Serial.print(kP * e);
-        // Serial.print(" I: ");
-        // Serial.print(kI * e_integral);
-        // Serial.print(" D: ");
-        // Serial.print(kD * derivative);
-        // Serial.print(" Output: ");
-        // Serial.println(output);
-        if(output > 255) {
-            output = 255;
-        }else if(output < -255) {
-            output = -255;
+        if (usePid) {
+            e = motor_speed - target_speed;
+            e_integral += e;
+            // 數值防溢位保護
+            if (e_integral > DOUBLE_ABS_MAX) e_integral = DOUBLE_ABS_MAX;
+            if (e_integral < -DOUBLE_ABS_MAX) e_integral = -DOUBLE_ABS_MAX;
+            double derivative = e - e_prev;
+            e_prev = e;
+            output = kP * e + kI * e_integral + kD * derivative;
+            // Serial.print("P: ");
+            // Serial.print(kP * e);
+            // Serial.print(" I: ");
+            // Serial.print(kI * e_integral);
+            // Serial.print(" D: ");
+            // Serial.print(kD * derivative);
+            // Serial.print(" Output: ");
+            // Serial.println(output);
+            if(output > 255) {
+                output = 255;
+            }else if(output < -255) {
+                output = -255;
+            }
+        } else {
+            output = target_speed;
         }
     }else {
         output = 0;
