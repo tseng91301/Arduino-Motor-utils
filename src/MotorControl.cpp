@@ -54,8 +54,9 @@ void Motor::attach_interrupt_isr(void (*isr)()) {
 void Motor::update_speed() {
     static int last_encoderPos = 0;
     motor_speed = (encoderPos - last_encoderPos) / (double)(read_speed_interval * 0.001) * 60.0 / 7.0 / 27.0;
-    Serial.print("Speed: ");
-    Serial.println(motor_speed);
+    if (reversed) motor_speed *= -1;
+    // Serial.print("Speed: ");
+    // Serial.println(motor_speed);
     last_encoderPos = encoderPos = 0;
     return;
 }
@@ -64,6 +65,7 @@ uint8_t Motor::set_speed(int spd) {
     if (target_speed > 255) target_speed = 255;
     if (target_speed < -255) target_speed = -255;
     target_speed = spd;
+    if (reversed) target_speed *= -1;
     return 0;
 }
 

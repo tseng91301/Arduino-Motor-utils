@@ -44,6 +44,7 @@ class Motor {
         uint8_t callback_byte;
 
     public:
+        bool reversed = false;
         bool usePid = true;
         volatile long encoderPos = 0;
         // Construction
