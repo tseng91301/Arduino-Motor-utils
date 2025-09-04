@@ -54,7 +54,8 @@ void Motor::attach_interrupt_isr(void (*isr)()) {
 void Motor::update_speed() {
     static int last_encoderPos = 0;
     motor_speed = (encoderPos - last_encoderPos) / (double)(read_speed_interval * 0.001) * 60.0 / 7.0 / 27.0;
-    if (reversed) motor_speed *= -1;
+    if (reversed) motor_speed = -motor_speed;
+    // Serial.print(callback_byte);
     // Serial.print("Speed: ");
     // Serial.println(motor_speed);
     last_encoderPos = encoderPos = 0;
@@ -92,31 +93,27 @@ void Motor::service() {
     }
     int output;
     if(motor_enabled) {
-        if (usePid) {
-            e = motor_speed - target_speed;
-            e_integral += e;
-            // 數值防溢位保護
-            if (e_integral > DOUBLE_ABS_MAX) e_integral = DOUBLE_ABS_MAX;
-            if (e_integral < -DOUBLE_ABS_MAX) e_integral = -DOUBLE_ABS_MAX;
-            double derivative = e - e_prev;
-            e_prev = e;
-            output = kP * e + kI * e_integral + kD * derivative;
-            // Serial.print("P: ");
-            // Serial.print(kP * e);
-            // Serial.print(" I: ");
-            // Serial.print(kI * e_integral);
-            // Serial.print(" D: ");
-            // Serial.print(kD * derivative);
-            // Serial.print(" Output: ");
-            // Serial.println(output);
-            if(output > 255) {
-                output = 255;
-            }else if(output < -255) {
-                output = -255;
-            }
-        } else {
-            output = target_speed;
+        e = motor_speed - target_speed;
+        e_integral += e;
+        double derivative = e - e_prev;
+        e_prev = e;
+        output = kP * e + kI * e_integral + kD * derivative;
+        // Serial.print("P: ");
+        // Serial.print(kP * e);
+        // Serial.print(" I: ");
+        // Serial.print(kI * e_integral);
+        // Serial.print(" D: ");
+        // Serial.print(kD * derivative);
+        // Serial.print(" Output: ");
+        // Serial.println(output);
+        if(output > 255) {
+            output = 255;
+        }else if(output < -255) {
+            output = -255;
         }
+
+        // Important: Remove following Line if Encoder Functions!
+        output = target_speed;
     }else {
         output = 0;
     }
