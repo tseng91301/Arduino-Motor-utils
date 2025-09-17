@@ -15,7 +15,8 @@ class Motor {
         int encoderB;
         
         // Switch
-        bool motor_enabled = true;
+        bool motor_switch = true; // Manual switch
+        bool motor_enabled = true; // Automatic switch
 
         // Encoder Reading
         unsigned long read_speed_interval = 150;

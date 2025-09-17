@@ -88,6 +88,8 @@ void Motor::_turn(int spd) {
 void Motor::service() {
     static unsigned long last_speed_update_time = 0;
     unsigned long now_time = millis();
+
+    // Update speed if have encoder
     if(now_time - last_speed_update_time > read_speed_interval) {
         last_speed_update_time = now_time;
         update_speed();
@@ -98,28 +100,29 @@ void Motor::service() {
     } else {
         motor_enabled = true;
     }
-    if(motor_enabled) {
-        e = motor_speed - target_speed;
-        e_integral += e;
-        double derivative = e - e_prev;
-        e_prev = e;
-        output = kP * e + kI * e_integral + kD * derivative;
-        // Serial.print("P: ");
-        // Serial.print(kP * e);
-        // Serial.print(" I: ");
-        // Serial.print(kI * e_integral);
-        // Serial.print(" D: ");
-        // Serial.print(kD * derivative);
-        // Serial.print(" Output: ");
-        // Serial.println(output);
-        if(output > 255) {
-            output = 255;
-        }else if(output < -255) {
-            output = -255;
+    if(motor_enabled && motor_switch) {
+        if (have_encoder) {
+            e = motor_speed - target_speed;
+            e_integral += e;
+            double derivative = e - e_prev;
+            e_prev = e;
+            output = kP * e + kI * e_integral + kD * derivative;
+            // Serial.print("P: ");
+            // Serial.print(kP * e);
+            // Serial.print(" I: ");
+            // Serial.print(kI * e_integral);
+            // Serial.print(" D: ");
+            // Serial.print(kD * derivative);
+            // Serial.print(" Output: ");
+            // Serial.println(output);
+            if(output > 255) {
+                output = 255;
+            }else if(output < -255) {
+                output = -255;
+            }
+        } else {
+            output = target_speed;
         }
-
-        // Important: Remove following Line if Encoder Functions!
-        output = target_speed;
     }else {
         output = 0;
     }
