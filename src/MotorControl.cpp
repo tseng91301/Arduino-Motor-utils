@@ -63,6 +63,7 @@ void Motor::update_speed() {
 }
 
 uint8_t Motor::set_speed(int spd) {
+    last_speed_update_time = millis();
     if (target_speed > 255) target_speed = 255;
     if (target_speed < -255) target_speed = -255;
     target_speed = spd;
@@ -92,6 +93,11 @@ void Motor::service() {
         update_speed();
     }
     int output;
+    if (now_time - last_speed_update_time > contorl_timeout) {
+        motor_enabled = false;
+    } else {
+        motor_enabled = true;
+    }
     if(motor_enabled) {
         e = motor_speed - target_speed;
         e_integral += e;

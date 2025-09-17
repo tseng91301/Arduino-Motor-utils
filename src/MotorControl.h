@@ -43,6 +43,10 @@ class Motor {
         bool have_serial_callback = false;
         uint8_t callback_byte;
 
+        // Safety setting (Timeout interrupt)
+        unsigned long last_speed_update_time = 0;
+        unsigned long contorl_timeout = 2000;
+
     public:
         bool reversed = false;
 
